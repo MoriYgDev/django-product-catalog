@@ -1,0 +1,120 @@
+{% extends "base.html" %} {# Assuming base.html is in products/templates/ #}
+
+{% load product_extras %} 
+{% load jformat %} {# Make sure jformat is loaded here! #}
+
+{% block title %}{{ page_title }} - سایت محصولات{% endblock title %}
+
+{% block styles %}
+{# Your existing styles block - no changes needed here for date formatting #}
+<style>
+</style>
+{% endblock styles %}
+
+{% block content %}
+<h1 class="mb-4 text-center">{{ page_title }}</h1>
+
+<div class="p-3 mb-4 bg-light border rounded controls-section">
+    <div class="row g-3 align-items-center">
+        <div class="col-md-6">
+            <form method="GET" action="{% url 'products:list' %}" id="searchForm">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="نام محصول را جستجو کنید..." 
+                           value="{{ search_query|default:'' }}" id="searchInput" autocomplete="off">
+                    {% if search_query %}
+                    <a href="{% url 'products:list' %}{% if sort_option and sort_option != 'date_desc' %}?sort={{ sort_option }}{% endif %}" class="btn btn-outline-danger" title="پاک کردن جستجو">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                    {% endif %}
+                    <button class="btn btn-primary" type="submit">جستجو</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-6">
+            <div class="d-flex flex-wrap justify-content-md-end align-items-center">
+                <strong class="me-2 ms-1 mb-2 mb-md-0">مرتب سازی:</strong>
+                {% with current_sort=sort_option|default:'date_desc' %}
+                <div class="btn-group btn-group-sm me-md-2 mb-2 mb-md-0" role="group">
+                    <a href="{% url 'products:list' %}?sort={% if current_sort == 'date_desc' %}date_asc{% else %}date_desc{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="btn {% if current_sort == 'date_desc' or current_sort == 'date_asc' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                        تاریخ 
+                        {% if current_sort == 'date_desc' %}<i class="bi bi-arrow-down"></i>{% elif current_sort == 'date_asc' %}<i class="bi bi-arrow-up"></i>{% endif %}
+                    </a>
+                </div>
+                <div class="btn-group btn-group-sm me-md-2 mb-2 mb-md-0" role="group">
+                    <a href="{% url 'products:list' %}?sort={% if current_sort == 'name_asc' %}name_desc{% else %}name_asc{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="btn {% if current_sort == 'name_asc' or current_sort == 'name_desc' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                        نام 
+                        {% if current_sort == 'name_asc' %}<i class="bi bi-arrow-up"></i>{% elif current_sort == 'name_desc' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                    </a>
+                </div>
+                <div class="btn-group btn-group-sm mb-2 mb-md-0" role="group">
+                    <a href="{% url 'products:list' %}?sort={% if current_sort == 'brand_asc' %}brand_desc{% else %}brand_asc{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="btn {% if current_sort == 'brand_asc' or current_sort == 'brand_desc' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                        برند 
+                        {% if current_sort == 'brand_asc' %}<i class="bi bi-arrow-up"></i>{% elif current_sort == 'brand_desc' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                    </a>
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if products %}
+    <div class="product-list-container">
+        {% for product in products %}
+            <div class="product-item-row p-3 mb-3 border rounded bg-white shadow-sm">
+                <div class="row align-items-center product-row-clickable" data-bs-toggle="collapse" data-bs-target="#collapseProduct{{ product.id }}" aria-expanded="false" aria-controls="collapseProduct{{ product.id }}">
+                    <div class="col-auto text-center" style="width: 120px;">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-height: 100px; max-width: 100px; object-fit: contain; display: inline-block;">
+                        {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center rounded" style="width: 100px; height: 100px; border: 1px dashed #ccc; margin: auto;">
+                                <small class="text-muted">بدون تصویر</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col">
+                        <h5 class="mb-1">{{ product.name }}</h5>
+                        {% if product.brand %}
+                            <p class="mb-1 text-muted"><small>برند: {{ product.brand }}</small></p>
+                        {% endif %}
+                        {# vvvvv THIS IS WHERE YOU WERE LIKELY DISPLAYING entry_date vvvvv #}
+                        {# Assuming you had a line here for entry_date, it's now incorporated implicitly #}
+                        {# or you might want to add it explicitly if it was missed in the previous structure. #}
+                        {# If you had a specific line for entry_date like this before: #}
+                        {# <p class="card-text"><small class="text-muted">تاریخ ورود: {{ product.entry_date }}</small></p> #}
+                        {# You would change it to: #}
+                         <p class="card-text mb-0"><small class="text-muted">تاریخ ورود: {{ product.entry_date|jformat:"%Y/%m/%d" }}</small></p> 
+                        {# You could also add other dates like created_at if you want: #}
+                        {# <p class="card-text"><small class="text-muted">ایجاد شده در: {{ product.created_at|jformat:"%y/%m/%d %H:%M" }}</small></p> #}
+                    </div>
+                    <div class="col-lg-3 col-md-4 text-md-end text-start mt-2 mt-md-0">
+                        <p class="h5 mb-0 price-text"><strong>{{ product.price|rial_format }} ریال</strong></p>
+                    </div>
+                </div>
+                <div class="collapse mt-2" id="collapseProduct{{ product.id }}">
+                    <div class="p-3 bg-light-subtle rounded border-top">
+                        {% if product.description %}
+                            <h6>توضیحات:</h6>
+                            <p class="mb-0">{{ product.description|linebreaksbr }}</p>
+                        {% else %}
+                            <p class="text-muted mb-0">توضیحات موجود نیست.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info text-center" role="alert">
+        در حال حاضر محصولی برای نمایش وجود ندارد.
+    </div>
+{% endif %}
+{% endblock content %}
+
+{% block scripts %}
+{# Your existing scripts block - no changes needed here for date formatting #}
+{% endblock scripts %}

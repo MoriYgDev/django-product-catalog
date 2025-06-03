@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}ورود به پنل مدیریت{% endblock title %}
+
+{% block content %}
+<div class="container py-4 py-md-5"> {# Added a bit more padding #}
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-lg border-0"> {# Added border-0 for a cleaner look if bg is distinct #}
+                <div class="card-body p-4 p-sm-5"> {# Responsive padding #}
+                    <h2 class="card-title text-center fw-bold mb-4">{% translate 'Log in to Admin Panel' %}</h2>
+                    
+                    {% if form.errors and not form.non_field_errors %}
+                    <div class="alert alert-danger p-2" role="alert">
+                        <small>{% if form.errors.items|length == 1 %}{% translate "Please correct the error below." %}{% else %}{% translate "Please correct the errors below." %}{% endif %}</small>
+                    </div>
+                    {% endif %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger p-2" role="alert">
+                        {% for error in form.non_field_errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" action="{{ app_path }}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {# Using form.username.label results in <label for="id_username">Username:</label> #}
+                            {# We can just use the translated text for better control or if form.username.label includes ":" #}
+                            <label for="{{ form.username.id_for_label }}" class="form-label fw-medium">{% translate 'Username' %}</label>
+                            {{ form.username }} {# Input field will be styled by CSS below #}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.username.errors %}<small>{{ error }}</small>{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4"> {# Increased margin-bottom #}
+                            <label for="{{ form.password.id_for_label }}" class="form-label fw-medium">{% translate 'Password' %}</label>
+                            {{ form.password }} {# Input field will be styled by CSS below #}
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}<small>{{ error }}</small>{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="id_remember_me" name="remember_me">
+                            <label class="form-check-label" for="id_remember_me">{% translate 'Remember me' %}</label>
+                        </div>
+                        
+                        <input type="hidden" name="next" value="{{ next }}">
+                        
+                        <div class="d-grid mt-4"> {# Increased margin-top for button #}
+                            <button type="submit" class="btn btn-primary btn-lg">{% translate 'Log in' %}</button>
+                        </div>
+                    </form>
+
+                    {# Optional: Password reset link #}
+                    {# {% url 'admin_password_reset' as password_reset_url %} #}
+                    {# {% if password_reset_url %} #}
+                    {# <p class="mt-3 mb-0 text-center"><small><a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a></small></p> #}
+                    {# {% endif %} #}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    /* Ensure admin form inputs look like Bootstrap's form-control */
+    #id_username, 
+    #id_password {
+        display: block;
+        width: 100%;
+        padding: .5rem .75rem; /* Slightly larger padding */
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--bs-body-color);
+        background-color: var(--bs-body-bg); /* Use theme variable */
+        background-clip: padding-box;
+        border: 1px solid var(--bs-border-color-translucent, #dee2e6); /* Use theme variable, fallback */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border-radius: .375rem; /* Standard Bootstrap border-radius */
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+
+    #id_username:focus, 
+    #id_password:focus {
+        border-color: var(--bs-primary); /* Use theme primary color for focus */
+        outline: 0;
+        box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb, 13, 110, 253), .25); /* Use theme primary for shadow */
+    }
+
+    /* Styling for error messages */
+    .invalid-feedback.d-block {
+        margin-top: .25rem;
+        font-size: .875em;
+        color: var(--bs-danger);
+    }
+
+    /* Ensure form labels have some breathing room */
+    .form-label {
+        margin-bottom: .5rem;
+    }
+
+    /* Remember me checkbox alignment and spacing */
+    .form-check {
+        padding-right: 1.25em; /* Adjust for RTL, default is padding-left */
+        margin-bottom: 1rem;   /* Consistent margin */
+    }
+    .form-check .form-check-input {
+        float: right; /* Align checkbox to the right for RTL */
+        margin-left: -1.25em; /* Adjust for RTL */
+        margin-right: 0;      /* Reset default margin */
+    }
+    .form-check .form-check-label {
+        padding-right: 0.5em; /* Space between checkbox and label text in RTL */
+    }
+
+</style>
+{% endblock styles %}

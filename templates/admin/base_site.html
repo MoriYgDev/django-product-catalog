@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{# Optional: Customize the browser window/tab title #}
+{% block title %}{{ site_title|default:_('admin') }} | afratec{% endblock %}
+
+{# Override the branding block to include your logo #}
+{% block branding %}
+<div id="site-name" style="display: flex; align-items: center;">
+    <a href="{% url 'admin:index' %}">
+        {# MAKE SURE to replace 'images/company_logo.png' with the path to YOUR logo #}
+        {# Your logo should be in 'price-list/static/images/company_logo.png' #}
+        <img src="{% static 'images/company_logo.png' %}" 
+             alt="Company Logo" 
+             height="35" 
+             style="margin-left: 10px; vertical-align: middle;">
+             {# For RTL, margin-left creates space on the "end" side if logo is first #}
+    </a>
+    
+</div>
+{% endblock %}
+
+{# Optional block for adding custom CSS links or inline styles #}
+{% block extrastyle %}
+  {{ block.super }} {# Includes Django's default admin styles/CSS links in this block #}
+  {# If you create a custom_admin.css file in price-list/static/css/ folder: #}
+  {# <link rel="stylesheet" type="text/css" href="{% static 'css/custom_admin.css' %}"> #}
+  
+  {# You can add quick inline styles here too for the logo or header if needed #}
+  <style>
+    #branding h1#site-name-text {
+        padding: 0; 
+        margin: 0;
+        font-size: 1.2rem; /* Adjust as needed to fit with your logo */
+    }
+    /* If you have a very specific site_header already set (e.g. in urls.py),
+       you might not need to style the h1 text color here, but if you do: */
+    /*
+    #branding h1#site-name-text a { 
+        color: #yourDesiredTextColor; 
+    }
+    */
+  </style>
+{% endblock %}
