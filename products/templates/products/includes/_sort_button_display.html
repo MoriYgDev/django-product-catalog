@@ -1,0 +1,7 @@
+{# products/templates/products/includes/_sort_button_display.html #}
+<a href="{{ button_context.url }}" class="btn {{ button_context.button_class }}">
+    {{ button_context.display_text }}
+    {% if button_context.icon_html %}
+        {{ button_context.icon_html|safe }} {# Use |safe because icon_html contains HTML #}
+    {% endif %}
+</a>

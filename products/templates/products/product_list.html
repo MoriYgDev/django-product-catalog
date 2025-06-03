@@ -19,46 +19,42 @@
         <div class="col-md-6">
             <form method="GET" action="{% url 'products:list' %}" id="searchForm">
                 <div class="input-group">
-                    <input type="text" name="q" class="form-control" placeholder="نام محصول را جستجو کنید..." 
-                           value="{{ search_query|default:'' }}" id="searchInput" autocomplete="off">
-                    {% if search_query %}
-                    <a href="{% url 'products:list' %}{% if sort_option and sort_option != 'date_desc' %}?sort={{ sort_option }}{% endif %}" class="btn btn-outline-danger" title="پاک کردن جستجو">
-                        <i class="bi bi-x-lg"></i>
-                    </a>
-                    {% endif %}
-                    <button class="btn btn-primary" type="submit">جستجو</button>
-                </div>
-            </form>
+                    {{ search_form.q }} {# This renders the input field from our Django form #}
+
+                    {# Logic for the clear search button - check if there's a query param 'q' #}
+                    {% if request.GET.q %} 
+                <a href="{% url 'products:list' %}{% if sort_option and sort_option != 'date_desc' %}?sort={{ sort_option }}{% endif %}" class="btn btn-outline-danger" title="پاک کردن جستجو">
+            <i class="bi bi-x-lg"></i>
+        </a>
+        {% endif %}
+        <button class="btn btn-primary" type="submit">جستجو</button>
+    </div>
+</form>
         </div>
 
         <div class="col-md-6">
-            <div class="d-flex flex-wrap justify-content-md-end align-items-center">
-                <strong class="me-2 ms-1 mb-2 mb-md-0">مرتب سازی:</strong>
-                {% with current_sort=sort_option|default:'date_desc' %}
-                <div class="btn-group btn-group-sm me-md-2 mb-2 mb-md-0" role="group">
-                    <a href="{% url 'products:list' %}?sort={% if current_sort == 'date_desc' %}date_asc{% else %}date_desc{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="btn {% if current_sort == 'date_desc' or current_sort == 'date_asc' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-                        تاریخ 
-                        {% if current_sort == 'date_desc' %}<i class="bi bi-arrow-down"></i>{% elif current_sort == 'date_asc' %}<i class="bi bi-arrow-up"></i>{% endif %}
-                    </a>
-                </div>
-                <div class="btn-group btn-group-sm me-md-2 mb-2 mb-md-0" role="group">
-                    <a href="{% url 'products:list' %}?sort={% if current_sort == 'name_asc' %}name_desc{% else %}name_asc{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="btn {% if current_sort == 'name_asc' or current_sort == 'name_desc' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-                        نام 
-                        {% if current_sort == 'name_asc' %}<i class="bi bi-arrow-up"></i>{% elif current_sort == 'name_desc' %}<i class="bi bi-arrow-down"></i>{% endif %}
-                    </a>
-                </div>
-                <div class="btn-group btn-group-sm mb-2 mb-md-0" role="group">
-                    <a href="{% url 'products:list' %}?sort={% if current_sort == 'brand_asc' %}brand_desc{% else %}brand_asc{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="btn {% if current_sort == 'brand_asc' or current_sort == 'brand_desc' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-                        برند 
-                        {% if current_sort == 'brand_asc' %}<i class="bi bi-arrow-up"></i>{% elif current_sort == 'brand_desc' %}<i class="bi bi-arrow-down"></i>{% endif %}
-                    </a>
-                </div>
-                {% endwith %}
-            </div>
+    <div class="d-flex flex-wrap justify-content-md-end align-items-center">
+        <strong class="me-2 ms-1 mb-2 mb-md-0">مرتب سازی:</strong>
+
+        {# Date Sort Button #}
+        <div class="btn-group btn-group-sm me-md-2 mb-2 mb-md-0" role="group">
+            {% sort_button_context 'date' 'تاریخ' as date_button_ctx %}
+            {% include "products/includes/_sort_button_display.html" with button_context=date_button_ctx %}
         </div>
+
+        {# Name Sort Button #}
+        <div class="btn-group btn-group-sm me-md-2 mb-2 mb-md-0" role="group">
+            {% sort_button_context 'name' 'نام' as name_button_ctx %}
+            {% include "products/includes/_sort_button_display.html" with button_context=name_button_ctx %}
+        </div>
+
+        {# Brand Sort Button #}
+        <div class="btn-group btn-group-sm mb-2 mb-md-0" role="group">
+            {% sort_button_context 'brand' 'برند' as brand_button_ctx %}
+            {% include "products/includes/_sort_button_display.html" with button_context=brand_button_ctx %}
+        </div>
+    </div>
+</div>
     </div>
 </div>
 
